@@ -10,7 +10,24 @@ def keypress():
     '''
 
     import keyboard
-    #hi 
+
+    forever = True
+    while forever is True:
+        if keyboard.is_pressed('w'):
+            pyautogui.press("up")
+        if keyboard.is_pressed('a'):
+            pyautogui.press("left")
+        if keyboard.is_pressed('s'):
+            pyautogui.press("down")
+        if keyboard.is_pressed('d'):
+            pyautogui.press("right")
+
+
+        
+
+
+    
+
     # put your code here
 
 
