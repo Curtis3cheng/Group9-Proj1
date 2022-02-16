@@ -42,7 +42,21 @@ def trackpad_mouse():
         global last_position
         if last_position == (None, None):
             last_position = (x ,y )
-            
+        else:
+            diffX = last_position[0] - x
+            diffY = last_position[1] - y
+            absDiffX = abs(last_position[0] - x)
+            absDiffY = abs(last_position[1] - y)
+            if absDiffX > 10: #need to check threshold
+                if diffX > diffY:
+                    #move left or right
+                else:
+                    #move up or down
+            if absDiffY > 10: #need to check threshold
+                #add a new position
+                pass
+
+
         
         
 
