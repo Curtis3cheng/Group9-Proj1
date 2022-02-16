@@ -50,7 +50,9 @@ def trackpad_mouse():
             if absDiffX > 10: #need to check threshold
                 if diffX > diffY:
                     #move left or right
+                    pass
                 else:
+                    pass
                     #move up or down
             if absDiffY > 10: #need to check threshold
                 #add a new position
