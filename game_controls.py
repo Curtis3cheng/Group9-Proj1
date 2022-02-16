@@ -39,8 +39,11 @@ def trackpad_mouse():
     from pynput import mouse
 
     def on_move(x, y):
-        # put your code here
-        pass
+        global last_position
+        if last_position == (None, None):
+            last_position = (x ,y )
+            
+        
         
 
     with mouse.Listener(on_move=on_move) as listener:
