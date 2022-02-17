@@ -33,6 +33,7 @@ def trackpad_mouse():
 
     def on_move(x, y):
         global last_position
+        global last_dir
         if last_position == (None, None):
             last_position = (x ,y )
         else:
@@ -59,21 +60,27 @@ def trackpad_mouse():
             #             pyautogui.press("up")
             #             print("up")
             if absDiffX > 30:
-                if diffX > diffY:
-                    if diffX < 0:
+                if diffX > diffY :
+                    if diffX < 0 and (last_dir != "right" or "left"):
                         pyautogui.press("right")
+                        last_dir = "right"
+
                         print("right")
+
                         
                     else:
                         pyautogui.press("left")
+                        last_dir = "left"
                         print("left")
             
-            if absDiffY > 50:
+            if absDiffY > 50 and (last_dir != "down" or "up"):
                 if diffY < 0:
                         pyautogui.press("down")
+                        last_dir= "down"
                         print("down")
                 else:
                         pyautogui.press("up")
+                        last_dir = "up"
                         print("up")
 
     with mouse.Listener(on_move=on_move) as listener:
