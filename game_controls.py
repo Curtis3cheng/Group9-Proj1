@@ -16,12 +16,16 @@ def keypress():
     while forever is True:
         if keyboard.is_pressed('w'):
             pyautogui.press("up")
+            print("up")
         if keyboard.is_pressed('a'):
             pyautogui.press("left")
+            print("left")
         if keyboard.is_pressed('s'):
             pyautogui.press("down")
+            print("down")
         if keyboard.is_pressed('d'):
             pyautogui.press("right")
+            print("right")
 
 
 def trackpad_mouse():
@@ -41,28 +45,33 @@ def trackpad_mouse():
             diffY = last_position[1] - y
             absDiffX = abs(last_position[0] - x)
             absDiffY = abs(last_position[1] - y)
-            thresholdX = 40
-            thresholdy = 60
+            thresholdX = 100
+            thresholdy = 100
             if absDiffX > thresholdX and (absDiffX > absDiffY) :
                 if diffX < 0  and last_dir != "right":
                     pyautogui.press("right")
+                    last_position = (x ,y )
                     last_dir = "right"
                     print("right")
                 if diffX > 0 and last_dir != "left":
                     pyautogui.press("left")
+                    last_position = (x ,y )
                     last_dir = "left"
                     print("left")
             if absDiffY > thresholdy and (absDiffY > absDiffX):
                 if diffY > 0 and last_dir != "up":
                     pyautogui.press("up")
+                    last_position = (x ,y )
                     last_dir = "up"
                     print("up")
                 
                 if diffY < 0 and last_dir != "down":
                     pyautogui.press("down")
+                    last_position = (x ,y )
                     last_dir = "down"
                     print("down")
 
+            
                 
             
                
