@@ -44,17 +44,17 @@ def trackpad_mouse():
                 if diffX > diffY:
                     if diffX < 0:
                         pyautogui.press("right")
-                        pass
+                        
                     else:
                         pyautogui.press("left")
 
-                        pass
+                        
                 else:
                     if diffY < 0:
                         pyautogui.press("down")
                     else:
                         pyautogui.press("up")
-                        pass
+                        
 
     with mouse.Listener(on_move=on_move) as listener:
         listener.join() 
