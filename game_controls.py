@@ -5,10 +5,11 @@ last_dir = ''
 
 def keypress():
     ''' 
-    Choose any four keys that a user can press to control the game.
-    Update this doc string with your choices. 
+    @keypress
+    @purpose: Control the game using the keys 'w','a','s', and 'd' as input
+    @parameters: None
+    @return: None
     '''
-
     import keyboard
 
     forever = True
@@ -21,14 +22,6 @@ def keypress():
             pyautogui.press("down")
         if keyboard.is_pressed('d'):
             pyautogui.press("right")
-
-
-        
-
-
-    
-
-    # put your code here
 
 
 def trackpad_mouse():
@@ -61,12 +54,7 @@ def trackpad_mouse():
                         #move down
                     else:
                         #move up
-                    pass
-                    
-
-
-        
-        
+                        pass
 
     with mouse.Listener(on_move=on_move) as listener:
         listener.join() 
