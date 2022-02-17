@@ -43,17 +43,17 @@ def trackpad_mouse():
             if absDiffX > 10 or absDiffY > 10: #need to check threshold
                 if diffX > diffY:
                     if diffX < 0:
-                        #move right now
+                        pyautogui.press("right")
                         pass
                     else:
-                        #move left
+                        pyautogui.press("left")
 
                         pass
                 else:
                     if diffY < 0:
-                        #move down
+                        pyautogui.press("down")
                     else:
-                        #move up
+                        pyautogui.press("up")
                         pass
 
     with mouse.Listener(on_move=on_move) as listener:
