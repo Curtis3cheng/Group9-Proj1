@@ -3,7 +3,7 @@ import pyautogui
 last_position = (None,None)
 last_dir = ''
 
-def keypress():
+def keypress()->None:
     ''' 
     @keypress
     @purpose: Control the game using the keys 'w','a','s', and 'd' as input
@@ -30,7 +30,11 @@ def keypress():
 
 def trackpad_mouse():
     ''' 
-    Control the game by moving the mouse/finger on trackpad left, right, up, or down. 
+    @trackpad_mouse
+    @purpose: Control the game by moving the mouse/finger 
+    on trackpad left, right, up, or down. 
+    @parameters: None
+    @return: None
     '''
 
     from pynput import mouse
@@ -75,6 +79,12 @@ def trackpad_mouse():
         listener.join() 
 
 def color_tracker():
+    """
+    @color_tracker
+    @purpose: Control the game by identifying the movement of a specific color in the camera.
+    @parameters: None
+    @return: None
+    """
     import cv2
     import imutils
     import numpy as np
@@ -100,6 +110,7 @@ def color_tracker():
     time.sleep(2)
     #Start video capture
     vs = mw.WebcamVideoStream().start()
+    
 
 
     while True:
@@ -123,12 +134,12 @@ def color_tracker():
         objCenter = None
         
         if len(foundObj) != 0:
-
         
+     
 
 
 
-def finger_tracking():
+def finger_tracking()->None:
     import cv2
     import imutils
     import numpy as np
@@ -144,9 +155,57 @@ def finger_tracking():
     # put your code here
 
 
-def unique_control():
-    # put your code here
-    pass
+def unique_control()->None:
+    """
+    @unique_control
+    @purpose: Control the game through up and down scrolls 
+    mixed with left/right clicks (mouse needed)
+    @parameters: None
+    @return: None
+    """
+    from pynput import mouse 
+    from tkinter import Tk 
+    #initializes variables to hold the last direction of scrolls and clicks 
+    last_scroll = None
+    last_click = None 
+
+    #detects in what direction you are scrolling and inputs up/down directionality 
+    def on_scroll(x,y,dx,dy)->None:
+        if dy>0 and last_scroll != "down":
+            pyautogui.press("down")
+            print("down")
+        elif dy<0 and last_scroll != "up":
+            pyautogui.press("up")
+            print("up")
+        else:
+            pass
+
+    #detects left or right click and changes direction 
+    def on_click(x, y, button, pressed)->None:
+        click = button.name 
+        if click == "left" and last_click != "left":
+            if pressed:
+                pyautogui.press("left")
+                print("left")
+        elif click == "right" and last_click != "right":
+            if pressed:
+                pyautogui.press("right")
+                print("right")
+        else:
+            pass
+
+    #establishes continous event listener
+    with mouse.Listener(on_scroll = on_scroll, on_click = on_click) as listener:
+        listener.join()
+
+    """
+    ATTENTION: ^^^code all works we just need to find out a way
+    to disable the right click menus in order 
+    for this method to make any sense
+    """
+   
+    
+
 
 def main():
     control_mode = input("How would you like to control the game? ")
