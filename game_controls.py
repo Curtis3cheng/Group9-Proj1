@@ -71,66 +71,6 @@ def trackpad_mouse():
                     last_dir = "down"
                     print("down")
 
-            
-                
-            
-               
-
-
-            """
-            Version 1:
-            if absDiffX or absDiffY > 50: #need to check threshold
-                if diffX > diffY:
-                    if absDiffX < 50:
-                        pyautogui.press("right")
-                        last_dir = "right"
-                        print("right")
-                        
-                    else:
-                        pyautogui.press("left")
-                        last_dir = "left"
-                        print("left")
-
-                        
-                else:
-                    if absDiffY < 0:
-                        pyautogui.press("down")
-                        last_dir = "down"
-                        print("down")
-                    else:
-                        pyautogui.press("up")
-                        last_dir = "up"
-                        print("up")
-
-            """
-            """
-            #variation 2
-            if absDiffX > 30:
-                if diffX > diffY :
-                    if diffX < 100 and (last_dir != "right" or "left"):
-                        pyautogui.press("right")
-                        last_dir = "right"
-
-                        print("right")
-
-                        
-                    else:
-                        pyautogui.press("left")
-                        last_dir = "left"
-                        print("left")
-            
-            if absDiffY > 50 and (last_dir != "down" or "up"):
-                if diffY < 100:
-                        pyautogui.press("down")
-                        last_dir= "down"
-                        print("down")
-                else:
-                        pyautogui.press("up")
-                        last_dir = "up"
-                        print("up")
-
-            """
-
     with mouse.Listener(on_move=on_move) as listener:
         listener.join() 
 
@@ -143,8 +83,8 @@ def color_tracker():
     import multithreaded_webcam as mw
 
     # You need to define HSV colour range MAKE CHANGE HERE
-    colorLower = None
-    colorUpper = None
+    colorLower = (0,106,255)
+    colorUpper = (59, 0 , 255)
 
     # set the limit for the number of frames to store and the number that have seen direction change
     buffer = 20
