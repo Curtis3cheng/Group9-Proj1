@@ -1,3 +1,4 @@
+from cv2 import FONT_HERSHEY_SIMPLEX
 import pyautogui
 
 last_position = (None,None)
@@ -91,7 +92,7 @@ def color_tracker():
     from collections import deque
     import time
     import multithreaded_webcam as mw
-
+    threshold = 100
     # You need to define HSV colour range MAKE CHANGE HERE
     colorLower = (0,106,255)
     colorUpper = (59, 0 , 255)
@@ -105,7 +106,8 @@ def color_tracker():
     (dX, dY) = (0, 0)
     direction = ''
     global last_dir
-
+    global last_position
+    threshold = 100
     #Sleep for 2 seconds to let camera initialize properly
     time.sleep(2)
     #Start video capture
@@ -130,11 +132,30 @@ def color_tracker():
         cv2.dilate(mask, None, iterations = 2)
 
         #creates object of the found color differentiation 
-        foundObj = cv2.findContours(mask.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+        foundObj = cv2.findContours(mask.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE) #is a list of contour points
         objCenter = None
         
         if len(foundObj) != 0:
-            pass
+            maxContour = max(foundObj, cv2.contourArea)
+            radius= cv2.minEnclosingCircle(maxContour)
+            M = cv2.moments(maxContour)
+            center = (int(M['m10']/ M['m00']), int(M['m01']/M['m00']))
+            if radius > 10:
+                pts.appendleft(center)
+            if len(pts) > 10:
+                #need to compare the dx and dy differences of x and y between the first and last in the 1 and 10 in the list
+                dX = pts[0][0] - pts[9][0]
+                dY = pts[0][1] - pts[9][1]
+        #adds text to the screen
+        cv2.putText(frame, direction, (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1 , (0,0,255), 3)
+
+        #need to update the thresholds already set 
+        
+        
+
+
+
+
         
      
 
