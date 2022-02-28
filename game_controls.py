@@ -134,6 +134,7 @@ def color_tracker():
         objCenter = None
         
         if len(foundObj) != 0:
+            pass
         
      
 
