@@ -143,13 +143,22 @@ def color_tracker():
             if radius > 10:
                 pts.appendleft(center)
             if len(pts) > 10:
-                #need to compare the dx and dy differences of x and y between the first and last in the 1 and 10 in the list
-                dX = pts[0][0] - pts[9][0]
-                dY = pts[0][1] - pts[9][1]
-        #adds text to the screen
-        cv2.putText(frame, direction, (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1 , (0,0,255), 3)
+                #compares the dx and dy differences of x and y between the first and last in the 1 and 10 in the list
+                diffX = pts[0][0] - pts[9][0]
+                diffY= pts[0][1] - pts[9][1] #in the document it says first (1) and (10)
 
-        #need to update the thresholds already set 
+                #adds text to the screen
+
+                cv2.putText(frame, direction, (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1 , (0,0,255), 3)
+
+
+                (dX,dY) = (diffX,diffY) #stores the difference between the two points
+                if last_position == (None, None):
+                    last_position = (dX ,dY)
+                else:
+                    diffX = last_position[0] - dX
+                    diffY = last_position[1] - dY
+                    # need to figure out what direction everything goes. Kinda Confused here
         
         
 
@@ -174,7 +183,27 @@ def finger_tracking()->None:
     #Start video capture
     vs = mw.WebcamVideoStream().start()
 
-    # put your code here
+    right_hand = mp.solutions.hands
+    right_hand.Hands(static_image_mode=False, max_num_hands = 1, min_detection_confidence = 0.5, min_tracking_conference = 0)
+    draw = mp.solutions.drawing_utils
+    global last_dir
+    upFingers = 0
+    while True:
+        frame = vs.read()
+         
+        #flip and resize frame
+        flipped_frame = cv2.flip(frame,1) #I assigned flipped frame to cv2.flip differnet from above.
+        imutils.resize(flipped_frame, width = 600)
+        cv2.COLOR_BGR2RGB
+        hands.process(flipped_frame) #what is hands
+        if multi
+        for i in range(multi_hand_landmarks):
+
+
+
+
+
+
 
 
 def unique_control()->None:
