@@ -171,13 +171,13 @@ def color_tracker():
                         last_dir = "left"
                         print("left")
                 if absDiffY > threshold and (absDiffY > absDiffX):
-                    if diffY > 0 and last_dir != "up":
+                    if diffY < 0 and last_dir != "up":
                         pyautogui.press("up")
                         last_position = (dX ,dY )
                         last_dir = "up"
                         print("up")
                     
-                    if diffY < 0 and last_dir != "down":
+                    if diffY > 0 and last_dir != "down":
                         pyautogui.press("down")
                         last_position = (dX ,dY)
                         last_dir = "down"
