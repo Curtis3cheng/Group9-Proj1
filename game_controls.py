@@ -92,7 +92,6 @@ def color_tracker():
     from collections import deque
     import time
     import multithreaded_webcam as mw
-    threshold = 100
     # You need to define HSV colour range MAKE CHANGE HERE
     colorLower = (0,106,255)
     colorUpper = (59, 0 , 255)
@@ -119,15 +118,15 @@ def color_tracker():
         frame = vs.read()
          
         #flip and resize frame
-        cv2.flip(frame,1)
-        imutils.resize(frame, width = 600)
+        flipped = cv2.flip(frame,1)
+        resize = imutils.resize(flipped, width = 600)
 
         #reduce noise and convert to HSV
-        cv2.GaussianBlur(frame, (5,5), 0) 
-        cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        blur = cv2.GaussianBlur(resize, (5,5), 0) 
+        hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
 
         #creates MASK
-        mask = cv2.inRange(frame, colorLower, colorUpper)
+        mask = cv2.inRange(hsv, colorLower, colorUpper)
         cv2.erode(mask, None, iterations = 2)
         cv2.dilate(mask, None, iterations = 2)
 
@@ -136,12 +135,12 @@ def color_tracker():
         objCenter = None
         
         if len(foundObj) != 0:
-            maxContour = max(foundObj, cv2.contourArea)
+            maxContour = max(foundObj, key = cv2.contourArea)
             radius= cv2.minEnclosingCircle(maxContour)
             M = cv2.moments(maxContour)
-            center = (int(M['m10']/ M['m00']), int(M['m01']/M['m00']))
+            objCenter = (int(M['m10']/ M['m00']), int(M['m01']/M['m00']))
             if radius > 10:
-                pts.appendleft(center)
+                pts.appendleft(objCenter)
             if len(pts) > 10:
                 #compares the dx and dy differences of x and y between the first and last in the 1 and 10 in the list
                 diffX = pts[0][0] - pts[9][0]
@@ -158,6 +157,32 @@ def color_tracker():
                 else:
                     diffX = last_position[0] - dX
                     diffY = last_position[1] - dY
+                    absDiffX = abs(last_position[0] - dX)
+                    absDiffY = abs(last_position[1] - dY)
+                    threshold = 100
+                    if absDiffX > threshold and (absDiffX > absDiffY):
+                        if diffX < 0  and last_dir != "right":
+                            pyautogui.press("right")
+                            last_position = (dX ,dY )
+                            last_dir = "right"
+                            print("right")
+                        if diffX > 0 and last_dir != "left":
+                            pyautogui.press("left")
+                            last_position = (dX ,dY )
+                            last_dir = "left"
+                            print("left")
+                    if absDiffY > threshold and (absDiffY > absDiffX):
+                        if diffY > 0 and last_dir != "up":
+                            pyautogui.press("up")
+                            last_position = (dX ,dY )
+                            last_dir = "up"
+                            print("up")
+                        
+                        if diffY < 0 and last_dir != "down":
+                            pyautogui.press("down")
+                            last_position = (dX ,dY)
+                            last_dir = "down"
+                            print("down")
                     # need to figure out what direction everything goes. Kinda Confused here
         
         
@@ -196,8 +221,9 @@ def finger_tracking()->None:
         imutils.resize(flipped_frame, width = 600)
         cv2.COLOR_BGR2RGB
         hands.process(flipped_frame) #what is hands
-        if multi
-        for i in range(multi_hand_landmarks):
+        #if multi
+        #for i in range(multi_hand_landmarks):
+
 
 
 
