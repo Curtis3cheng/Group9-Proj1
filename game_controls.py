@@ -93,8 +93,8 @@ def color_tracker():
     import time
     import multithreaded_webcam as mw
     # You need to define HSV colour range MAKE CHANGE HERE
-    colorLower = (0,106,255)
-    colorUpper = (59, 0 , 255)
+    colorLower = (255,36,36)
+    colorUpper = (255,36 ,144)
 
     # set the limit for the number of frames to store and the number that have seen direction change
     buffer = 20
@@ -106,17 +106,19 @@ def color_tracker():
     direction = ''
     global last_dir
     global last_position
-    threshold = 100
+    threshold = 20
     #Sleep for 2 seconds to let camera initialize properly
     time.sleep(2)
     #Start video capture
     vs = mw.WebcamVideoStream().start()
+    for i in range(5):
+        print("This works so far")
     
 
 
     while True:
         frame = vs.read()
-         
+
         #flip and resize frame
         flipped = cv2.flip(frame,1)
         resize = imutils.resize(flipped, width = 600)
@@ -127,66 +129,59 @@ def color_tracker():
 
         #creates MASK
         mask = cv2.inRange(hsv, colorLower, colorUpper)
-        cv2.erode(mask, None, iterations = 2)
-        cv2.dilate(mask, None, iterations = 2)
-
+        noiseEraser = cv2.erode(mask, None, iterations = 2)
+        dilate = cv2.dilate(noiseEraser, None, iterations = 2)
         #creates object of the found color differentiation 
-        foundObj = cv2.findContours(mask.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE) #is a list of contour points
+        foundObj = cv2.findContours(dilate.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE) #is a list of contour points
         objCenter = None
+        for i in range(len(foundObj)):
+            print(foundObj[i])
+
         
-        if len(foundObj) != 0:
-            maxContour = max(foundObj, key = cv2.contourArea)
-            radius= cv2.minEnclosingCircle(maxContour)
+        if len(foundObj[0]) > 0:
+            maxContour = max(foundObj, key = cv2.contourArea) #max contour errors
+            radius= cv2.minEnclosingCircle(maxContour) #returns center and raidus so use [1]
             M = cv2.moments(maxContour)
             objCenter = (int(M['m10']/ M['m00']), int(M['m01']/M['m00']))
-            if radius > 10:
+            if radius[1] > 10:
                 pts.appendleft(objCenter)
-            if len(pts) > 10:
+            if len(pts) > 10 and num_frames >10:
                 #compares the dx and dy differences of x and y between the first and last in the 1 and 10 in the list
                 diffX = pts[0][0] - pts[9][0]
                 diffY= pts[0][1] - pts[9][1] #in the document it says first (1) and (10)
-
-                #adds text to the screen
-
-                cv2.putText(frame, direction, (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1 , (0,0,255), 3)
-
-
+                absDiffX = abs(diffX)
+                absDiffY = abs(diffY)
                 (dX,dY) = (diffX,diffY) #stores the difference between the two points
-                if last_position == (None, None):
+                cv2.putText(resize, direction, (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1 , (0,0,255), 3) #not sure where this goes rn
+                    
+            if absDiffX > threshold and (absDiffX > absDiffY):
+                if diffX > 0  and last_dir != "right":
+                    pyautogui.press("right")
+                    last_position = (dX ,dY )
+                    last_dir = "right"
+                    print("right")
+                if diffX < 0 and last_dir != "left":
+                    pyautogui.press("left")
+                    print("left")
+                    last_position = (dX ,dY )
+                    last_dir = "left"
+                    print("left")
+            if absDiffY > threshold and (absDiffY > absDiffX):
+                if diffY > 0 and last_dir != "up":
+                    pyautogui.press("up")
+                    last_position = (dX ,dY )
+                    last_dir = "up"
+                    print("up")
+                
+                if diffY < 0 and last_dir != "down":
+                    pyautogui.press("down")
                     last_position = (dX ,dY)
-                else:
-                    diffX = last_position[0] - dX
-                    diffY = last_position[1] - dY
-                    absDiffX = abs(last_position[0] - dX)
-                    absDiffY = abs(last_position[1] - dY)
-                    threshold = 100
-                    if absDiffX > threshold and (absDiffX > absDiffY):
-                        if diffX < 0  and last_dir != "right":
-                            pyautogui.press("right")
-                            last_position = (dX ,dY )
-                            last_dir = "right"
-                            print("right")
-                        if diffX > 0 and last_dir != "left":
-                            pyautogui.press("left")
-                            last_position = (dX ,dY )
-                            last_dir = "left"
-                            print("left")
-                    if absDiffY > threshold and (absDiffY > absDiffX):
-                        if diffY > 0 and last_dir != "up":
-                            pyautogui.press("up")
-                            last_position = (dX ,dY )
-                            last_dir = "up"
-                            print("up")
-                        
-                        if diffY < 0 and last_dir != "down":
-                            pyautogui.press("down")
-                            last_position = (dX ,dY)
-                            last_dir = "down"
-                            print("down")
-                    # need to figure out what direction everything goes. Kinda Confused here
-        
-        
+                    last_dir = "down"
+                    print("down")
 
+            cv2.imshow('Game Control Window', flipped)
+            cv2.waitKey(1)
+            num_frames += 1
 
 
 
