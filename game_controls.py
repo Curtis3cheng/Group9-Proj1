@@ -94,8 +94,8 @@ def color_tracker():
     import time
     import multithreaded_webcam as mw
     # You need to define HSV colour range MAKE CHANGE HERE
-    colorLower = (29,86,6 )
-    colorUpper = (64,255,255)
+    colorLower = (110,50,50)
+    colorUpper = (130,255,255)
 
     # set the limit for the number of frames to store and the number that have seen direction change
     buffer = 20
@@ -107,7 +107,7 @@ def color_tracker():
     direction = ''
     global last_dir
     global last_position
-    threshold = 100
+    threshold = 30
     #Sleep for 2 seconds to let camera initialize properly
     time.sleep(2)
     #Start video capture
@@ -145,6 +145,9 @@ def color_tracker():
             M = cv2.moments(maxContour)
             objCenter = (int(M['m10']/ M['m00']), int(M['m01']/M['m00']))
             if radius[1] > 10:
+                cv2.circle(resize, (int(radius[0][0]), int(radius[0][1])), int(radius[1]), (0,255,255), 2)
+                cv2.circle(resize, objCenter, 5, (0,255,255), -1)
+
                 #print(objCenter) Find the object center
                 pts.appendleft(objCenter)
             if len(pts) > 10 and num_frames >10:
@@ -179,10 +182,9 @@ def color_tracker():
                         last_position = (dX ,dY)
                         last_dir = "down"
                         print("down")
-            cv2.putText(resize, direction, (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1 , (0,0,255), 3)
-            cv2.imshow('Game Control Window', flipped)
-            cv2.waitKey(1)
-            num_frames += 1
+        cv2.imshow('Game Control Window', resize)
+        cv2.waitKey(1)
+        num_frames += 1
 
 
 
