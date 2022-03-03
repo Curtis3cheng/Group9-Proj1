@@ -153,11 +153,11 @@ def color_tracker():
             if len(pts) > 10 and num_frames >10:
                 #compares the dx and dy differences of x and y between the first and last in the 1 and 10 in the list
                 diffX = pts[0][0] - pts[9][0]
-                diffY= pts[0][1] - pts[9][1] #in the document it says first (1) and (10)
+                diffY= pts[0][1] - pts[9][1] 
                 absDiffX = abs(diffX)
                 absDiffY = abs(diffY)
                 (dX,dY) = (diffX,diffY) #stores the difference between the two points
-                cv2.putText(resize, direction, (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1 , (0,0,255), 3) #not sure where this goes rn
+                cv2.putText(resize, direction, (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1 , (0,0,255), 3)
                     
                 if absDiffX > threshold and (absDiffX > absDiffY):
                     if diffX > 0 and last_dir != "right":
@@ -207,21 +207,51 @@ def finger_tracking()->None:
     vs = mw.WebcamVideoStream().start()
 
     right_hand = mp.solutions.hands
-    right_hand.Hands(static_image_mode=False, max_num_hands = 1, min_detection_confidence = 0.5, min_tracking_conference = 0)
+    with right_hand.Hands(static_image_mode=False, max_num_hands = 1, min_detection_confidence = 0.5, min_tracking_confidence = 0) as hands:
+        pass
     draw = mp.solutions.drawing_utils
     global last_dir
     upFingers = 0
+    landmarkList = []
     while True:
         frame = vs.read()
-         
-        #flip and resize frame
-        flipped_frame = cv2.flip(frame,1) #I assigned flipped frame to cv2.flip differnet from above.
-        imutils.resize(flipped_frame, width = 600)
-        cv2.COLOR_BGR2RGB
-        hands.process(flipped_frame) #what is hands
-        #if multi
-        #for i in range(multi_hand_landmarks):
 
+        #flip and resize frame
+        flipped = cv2.flip(frame,1)
+        resize = imutils.resize(flipped, width = 600)
+
+        #reduce noise and convert to HSV
+        blur = cv2.GaussianBlur(resize, (5,5), 0) 
+        hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2RGB)
+        results = hands.process(hsv) #why doesn't it like hands
+        landmarks = results.multi_hand_landmarks
+        if landmarks != None: #checks if it exist?
+            for i in results.multi_hand_landmarks:
+                for id, lm in enumerate(right_hand.landmark):
+                    (h, w) = hsv.shape[0:2] # or h, w , _ = image.shape
+                    newX = lm.x * w
+                    newY = lm.y * h
+                    cv2.circle(hsv, (newX,newY),3, (255,0,255), cv2.FILLED)
+                    landmarkList.append((id, newX,newY))
+                    print(landmarkList) #can delete later just checks what is in the list
+                if landmarkList != None:
+                    thumb = landmarkList[4][1] < landmarkList[3][1]
+                    index = landmarkList[8][2] < landmarkList[6][2]
+                    middle = landmarkList[12][2] < landmarkList[10][2]
+                    ring = landmarkList[16][2] < landmarkList[14][2]
+                    little = landmarkList[20][2] < landmarkList[18][2]
+        
+
+
+        cv2.putText(resize, str(int(upFingers)), (10,70), cv2.FONT_HERSHEY_PLAIN, 3, (255,0,255),3)
+        cv2.imshow("image", resize)
+        cv2.waitKey(1)
+
+
+
+
+
+        
 
 
 
@@ -262,7 +292,7 @@ def unique_control()->None:
             if pressed:
                 pyautogui.press("left")
                 print("left")
-        elif click == "right" and last_click != "right":
+        elif click == "ri, ght" and last_click != "right":
             if pressed:
                 pyautogui.press("right")
                 print("right")
