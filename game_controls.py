@@ -107,7 +107,7 @@ def color_tracker():
     direction = ''
     global last_dir
     global last_position
-    threshold = 30
+    threshold = 100
     #Sleep for 2 seconds to let camera initialize properly
     time.sleep(2)
     #Start video capture
@@ -211,7 +211,7 @@ def finger_tracking()->None:
         pass
     draw = mp.solutions.drawing_utils
     global last_dir
-    upFingers = 0
+    numFingers = 0
     landmarkList = []
     while True:
         frame = vs.read()
@@ -234,12 +234,40 @@ def finger_tracking()->None:
                     cv2.circle(hsv, (newX,newY),3, (255,0,255), cv2.FILLED)
                     landmarkList.append((id, newX,newY))
                     print(landmarkList) #can delete later just checks what is in the list
-                if landmarkList != None:
-                    thumb = landmarkList[4][1] < landmarkList[3][1]
-                    index = landmarkList[8][2] < landmarkList[6][2]
-                    middle = landmarkList[12][2] < landmarkList[10][2]
-                    ring = landmarkList[16][2] < landmarkList[14][2]
-                    little = landmarkList[20][2] < landmarkList[18][2]
+            if landmarkList != None:
+                thumb = landmarkList[4][1] < landmarkList[3][1]
+                index = landmarkList[8][2] < landmarkList[6][2]
+                middle = landmarkList[12][2] < landmarkList[10][2]
+                ring = landmarkList[16][2] < landmarkList[14][2]
+                little = landmarkList[20][2] < landmarkList[18][2]
+
+            if thumb or index or middle or ring or little != None:
+                numFingers +=1 #how do I constantly update this
+
+            if numFingers == 4 and last_dir != "right":
+                pyautogui.press("right")
+                numFingers = 4
+                last_dir = "right"
+                print("right")
+            if numFingers == 3 and last_dir != "left":
+                pyautogui.press("left")
+                numFingers = 3
+                last_dir = "left"
+                print("left")
+        
+            if numFingers == 1 and last_dir != "right":
+                pyautogui.press("up")
+                numFingers = 1
+                last_dir = "up"
+                print("up")
+            
+            if numFingers == 2 and last_dir != "down":
+                pyautogui.press("down")
+                numFingers = 2                
+                last_dir = "down"
+                print("down")
+                    
+
         
 
 
