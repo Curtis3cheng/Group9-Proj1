@@ -207,13 +207,13 @@ def finger_tracking()->None:
     vs = mw.WebcamVideoStream().start()
 
     right_hand = mp.solutions.hands
-    with right_hand.Hands(static_image_mode=False, max_num_hands = 1, min_detection_confidence = 0.5, min_tracking_confidence = 0) as hands:
-        pass
+    temp = right_hand.Hands(static_image_mode=False, max_num_hands = 1, min_detection_confidence = 0.5, min_tracking_confidence = 0)
     draw = mp.solutions.drawing_utils
     global last_dir
-    numFingers = 0
-    landmarkList = []
+    
     while True:
+        numFingers = 0
+        landmarkList = []
         frame = vs.read()
 
         #flip and resize frame
@@ -223,17 +223,18 @@ def finger_tracking()->None:
         #reduce noise and convert to HSV
         blur = cv2.GaussianBlur(resize, (5,5), 0) 
         hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2RGB)
-        results = hands.process(hsv) #why doesn't it like hands
+        results = temp.process(hsv) #why doesn't it like hands
         landmarks = results.multi_hand_landmarks
         if landmarks != None: #checks if it exist?
             for i in results.multi_hand_landmarks:
-                for id, lm in enumerate(right_hand.landmark):
+                for id, lm in enumerate(i.landmark):
                     (h, w) = hsv.shape[0:2] # or h, w , _ = image.shape
                     newX = lm.x * w
                     newY = lm.y * h
-                    cv2.circle(hsv, (newX,newY),3, (255,0,255), cv2.FILLED)
+                    tupleValues = (newX, newY)
+                    cv2.circle(flipped, (int(tupleValues[0]),int(tupleValues[1])),3, (255,0,255), cv2.FILLED)
                     landmarkList.append((id, newX,newY))
-                    print(landmarkList) #can delete later just checks what is in the list
+                     
             if landmarkList != None:
                 thumb = landmarkList[4][1] < landmarkList[3][1]
                 index = landmarkList[8][2] < landmarkList[6][2]
@@ -241,37 +242,45 @@ def finger_tracking()->None:
                 ring = landmarkList[16][2] < landmarkList[14][2]
                 little = landmarkList[20][2] < landmarkList[18][2]
 
-            if thumb or index or middle or ring or little != None:
-                numFingers +=1 #how do I constantly update this
-
-            if numFingers == 4 and last_dir != "right":
-                pyautogui.press("right")
-                numFingers = 4
-                last_dir = "right"
-                print("right")
-            if numFingers == 3 and last_dir != "left":
-                pyautogui.press("left")
-                numFingers = 3
-                last_dir = "left"
-                print("left")
-        
-            if numFingers == 1 and last_dir != "right":
-                pyautogui.press("up")
-                numFingers = 1
-                last_dir = "up"
-                print("up")
+            if thumb is True:
+                numFingers +=1
+            if index is True:
+                numFingers +=1
+            if middle is True:
+                numFingers +=1
+            if ring is True:
+                numFingers +=1
+            if little is True:
+                numFingers +=1    
+            if numFingers != 0:
+                if numFingers == 4 and last_dir != "right":
+                    pyautogui.press("right")
+                    numFingers = 4
+                    last_dir = "right"
+                    print("right")
+                if numFingers == 3 and last_dir != "left":
+                    pyautogui.press("left")
+                    numFingers = 3
+                    last_dir = "left"
+                    print("left")
             
-            if numFingers == 2 and last_dir != "down":
-                pyautogui.press("down")
-                numFingers = 2                
-                last_dir = "down"
-                print("down")
+                if numFingers == 1 and last_dir != "right":
+                    pyautogui.press("up")
+                    numFingers = 1
+                    last_dir = "up"
+                    print("up")
+                
+                if numFingers == 2 and last_dir != "down":
+                    pyautogui.press("down")
+                    numFingers = 2                
+                    last_dir = "down"
+                    print("down")
                     
 
         
 
 
-        cv2.putText(resize, str(int(upFingers)), (10,70), cv2.FONT_HERSHEY_PLAIN, 3, (255,0,255),3)
+        cv2.putText(resize, str(int(numFingers)), (10,70), cv2.FONT_HERSHEY_PLAIN, 3, (255,0,255),3)
         cv2.imshow("image", resize)
         cv2.waitKey(1)
         #pushed unpdated code can detele this comment
