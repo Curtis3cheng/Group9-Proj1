@@ -207,7 +207,7 @@ def finger_tracking()->None:
     vs = mw.WebcamVideoStream().start()
 
     right_hand = mp.solutions.hands
-    temp = right_hand.Hands(static_image_mode=False, max_num_hands = 1, min_detection_confidence = 0.5, min_tracking_confidence = 0)
+    temp = right_hand.Hands(static_image_mode=False, max_num_hands = 1, min_detection_confidence = 0.5, min_tracking_confidence = 0.5)
     draw = mp.solutions.drawing_utils
     global last_dir
     
@@ -221,9 +221,8 @@ def finger_tracking()->None:
         resize = imutils.resize(flipped, width = 600)
 
         #reduce noise and convert to HSV
-        blur = cv2.GaussianBlur(resize, (5,5), 0) 
-        hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2RGB)
-        results = temp.process(hsv) #why doesn't it like hands
+        hsv = cv2.cvtColor(resize, cv2.COLOR_BGR2RGB)
+        results = temp.process(hsv) 
         landmarks = results.multi_hand_landmarks
         if landmarks != None: #checks if it exist?
             for i in results.multi_hand_landmarks:
@@ -232,9 +231,10 @@ def finger_tracking()->None:
                     newX = lm.x * w
                     newY = lm.y * h
                     tupleValues = (newX, newY)
-                    cv2.circle(flipped, (int(tupleValues[0]),int(tupleValues[1])),3, (255,0,255), cv2.FILLED)
+                    cv2.circle(hsv, (int(tupleValues[0]),int(tupleValues[1])),3, (255,0,255), cv2.FILLED)
                     landmarkList.append((id, newX,newY))
-                     
+                draw.draw_landmarks(resize, i, right_hand.HAND_CONNECTIONS)
+ 
             if landmarkList != None:
                 thumb = landmarkList[4][1] < landmarkList[3][1]
                 index = landmarkList[8][2] < landmarkList[6][2]
@@ -264,7 +264,7 @@ def finger_tracking()->None:
                     last_dir = "left"
                     print("left")
             
-                if numFingers == 1 and last_dir != "right":
+                if numFingers == 1 and last_dir != "up":
                     pyautogui.press("up")
                     numFingers = 1
                     last_dir = "up"
