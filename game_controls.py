@@ -246,6 +246,7 @@ def finger_tracking()->None:
         cv2.putText(resize, str(int(upFingers)), (10,70), cv2.FONT_HERSHEY_PLAIN, 3, (255,0,255),3)
         cv2.imshow("image", resize)
         cv2.waitKey(1)
+        #pushed unpdated code can detele this comment
 
 
 
