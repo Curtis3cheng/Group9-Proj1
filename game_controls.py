@@ -1,3 +1,11 @@
+"""
+Name: Frank Veldhuizen, Curtis Cheng, Iness Ghourrabou
+Proj: Programming Prpject 1: Game Controls
+Class: COMP-332 SP22
+Prof: Dr. Jennifer Oleson
+Purpose: Develop an assortment of game controls for grid-based games.
+"""
+
 from cv2 import FONT_HERSHEY_SIMPLEX
 from numpy import diff
 import pyautogui
@@ -14,6 +22,7 @@ def keypress()->None:
     '''
     import keyboard
 
+    #infinite loop ensures constant data return 
     forever = True
     while forever is True:
         if keyboard.is_pressed('w'):
@@ -42,8 +51,16 @@ def trackpad_mouse():
     from pynput import mouse
 
     def on_move(x, y):
+        ''' 
+        @on_move
+        @purpose: event function that changes direction based on trackpad
+        @parameters: None
+        @return: None
+        '''
+        #initializes global variables for tracking previous dirctions
         global last_position
         global last_dir
+
         if last_position == (None, None):
             last_position = (x ,y )
         else:
@@ -53,6 +70,8 @@ def trackpad_mouse():
             absDiffY = abs(last_position[1] - y)
             thresholdX = 100
             thresholdy = 100
+
+            #checks for strictly x-direction movement and direction
             if absDiffX > thresholdX and (absDiffX > absDiffY) :
                 if diffX < 0  and last_dir != "right":
                     pyautogui.press("right")
@@ -64,6 +83,8 @@ def trackpad_mouse():
                     last_position = (x ,y )
                     last_dir = "left"
                     print("left")
+
+            #checks for strictly y-direction movement and direction
             if absDiffY > thresholdy and (absDiffY > absDiffX):
                 if diffY > 0 and last_dir != "up":
                     pyautogui.press("up")
@@ -77,6 +98,7 @@ def trackpad_mouse():
                     last_dir = "down"
                     print("down")
 
+    #defines event listener for trackpad movement 
     with mouse.Listener(on_move=on_move) as listener:
         listener.join() 
 
@@ -93,11 +115,12 @@ def color_tracker():
     from collections import deque
     import time
     import multithreaded_webcam as mw
-    # You need to define HSV colour range MAKE CHANGE HERE
+    #defines HSV colour range 
     colorLower = (110,50,50)
     colorUpper = (130,255,255)
 
-    # set the limit for the number of frames to store and the number that have seen direction change
+    # set the limit for the number of frames to store 
+    # and sets the number that have seen direction change
     buffer = 20
     pts = deque(maxlen = buffer)
 
@@ -108,15 +131,16 @@ def color_tracker():
     global last_dir
     global last_position
     threshold = 100
+
     #Sleep for 2 seconds to let camera initialize properly
     time.sleep(2)
-    #Start video capture
+
+    #Starts video capture and checks if correct
     vs = mw.WebcamVideoStream().start()
     for i in range(5):
         print("This works so far")
     
-
-
+    #infinite loop to ensure constant data return
     while True:
         frame = vs.read()
 
@@ -139,7 +163,6 @@ def color_tracker():
 
         
         if len(foundObj[0]) > 0:
-            #print("found object") so far this runs
             maxContour = max(foundObj[0], key = cv2.contourArea) #max contour errors
             radius= cv2.minEnclosingCircle(maxContour) #returns center and raidus so use [1]
             M = cv2.moments(maxContour)
@@ -148,8 +171,9 @@ def color_tracker():
                 cv2.circle(resize, (int(radius[0][0]), int(radius[0][1])), int(radius[1]), (0,255,255), 2)
                 cv2.circle(resize, objCenter, 5, (0,255,255), -1)
 
-                #print(objCenter) Find the object center
+                #Finds the object center
                 pts.appendleft(objCenter)
+
             if len(pts) > 10 and num_frames >10:
                 #compares the dx and dy differences of x and y between the first and last in the 1 and 10 in the list
                 diffX = pts[0][0] - pts[9][0]
@@ -159,6 +183,7 @@ def color_tracker():
                 (dX,dY) = (diffX,diffY) #stores the difference between the two points
                 cv2.putText(resize, direction, (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1 , (0,0,255), 3)
                     
+                #assigns directionality based in differences in x and y positions
                 if absDiffX > threshold and (absDiffX > absDiffY):
                     if diffX > 0 and last_dir != "right":
                         pyautogui.press("right")
@@ -186,14 +211,19 @@ def color_tracker():
         cv2.waitKey(1)
         num_frames += 1
 
-
-
-        
-     
-
-
-
 def finger_tracking()->None:
+    """
+    @finger_tracking
+    @purpose: detects the number of fingers 
+    held up by your right hand and changes
+    the direction of movement accordingly.
+    4 fingers - right
+    3 fingers - left 
+    2 fingers - down
+    1 finger - up
+    @parameters: None
+    @return: None
+    """
     import cv2
     import imutils
     import numpy as np
@@ -211,6 +241,7 @@ def finger_tracking()->None:
     draw = mp.solutions.drawing_utils
     global last_dir
     
+    #infinite loop ensures constant data return
     while True:
         numFingers = 0
         landmarkList = []
@@ -234,7 +265,8 @@ def finger_tracking()->None:
                     cv2.circle(hsv, (int(tupleValues[0]),int(tupleValues[1])),3, (255,0,255), cv2.FILLED)
                     landmarkList.append((id, newX,newY))
                 draw.draw_landmarks(resize, i, right_hand.HAND_CONNECTIONS)
- 
+
+            #detects each of the fingers 
             if landmarkList != None:
                 thumb = landmarkList[4][1] < landmarkList[3][1]
                 index = landmarkList[8][2] < landmarkList[6][2]
@@ -242,6 +274,7 @@ def finger_tracking()->None:
                 ring = landmarkList[16][2] < landmarkList[14][2]
                 little = landmarkList[20][2] < landmarkList[18][2]
 
+            #calculates the count of fingers
             if thumb is True:
                 numFingers +=1
             if index is True:
@@ -251,7 +284,9 @@ def finger_tracking()->None:
             if ring is True:
                 numFingers +=1
             if little is True:
-                numFingers +=1    
+                numFingers +=1  
+
+            #assigns directionality to the finger counts  
             if numFingers != 0:
                 if numFingers == 4 and last_dir != "right":
                     pyautogui.press("right")
@@ -275,15 +310,12 @@ def finger_tracking()->None:
                     numFingers = 2                
                     last_dir = "down"
                     print("down")
-                    
 
-        
-
-
+        #outputs the finger count on the camera screen
         cv2.putText(resize, str(int(numFingers)), (10,70), cv2.FONT_HERSHEY_PLAIN, 3, (255,0,255),3)
         cv2.imshow("image", resize)
         cv2.waitKey(1)
-        #pushed unpdated code can detele this comment
+        
 
 
 
@@ -311,9 +343,15 @@ def unique_control()->None:
     #initializes variables to hold the last direction of scrolls and clicks 
     last_scroll = None
     last_click = None 
-
-    #detects in what direction you are scrolling and inputs up/down directionality 
+ 
     def on_scroll(x,y,dx,dy)->None:
+        """
+        @on_scroll
+        @purpose: detects up or down scroll and changes 
+        direction accordingly
+        @parameters: x, y, dx, dy
+        @return: None
+        """
         if dy>0 and last_scroll != "down":
             pyautogui.press("down")
             print("down")
@@ -323,34 +361,47 @@ def unique_control()->None:
         else:
             pass
 
-    #detects left or right click and changes direction 
+    
     def on_click(x, y, button, pressed)->None:
+        """
+        @on_click
+        @purpose: detects left or right click and changes 
+        direction accordingly
+        @parameters: x, y, button, pressed
+        @return: None
+        """
         click = button.name 
         if click == "left" and last_click != "left":
             if pressed:
                 pyautogui.press("left")
                 print("left")
-        elif click == "ri, ght" and last_click != "right":
+        elif click == "right" and last_click != "right":
             if pressed:
                 pyautogui.press("right")
                 print("right")
         else:
             pass
 
-    #establishes continous event listener
+    #establishes continous event listener for scroll/click 
     with mouse.Listener(on_scroll = on_scroll, on_click = on_click) as listener:
         listener.join()
 
     """
-    ATTENTION: ^^^code all works we just need to find out a way
-    to disable the right click menus in order 
-    for this method to make any sense
+    ATTENTION: ^^^code functions properly, however the right click menus
+    are embedding in operating system and are not disabled.
     """
    
     
 
 
 def main():
+    """
+    @main
+    @purpose: prompts user for control mode number and activates the
+    respective control function
+    @parameters: None
+    @return: None
+    """
     control_mode = input("How would you like to control the game? ")
     if control_mode == '1':
         keypress()
@@ -362,6 +413,7 @@ def main():
         finger_tracking()
     elif control_mode == '5':
         unique_control()
+
 
 if __name__ == '__main__':
 	main()
